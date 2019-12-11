@@ -1,18 +1,14 @@
 #!/bin/ash
-# Replace PORT variable using envsubst
-PORT=$(printenv PORT)
-PORT=${PORT:-"8080"}
-export PORT="${PORT}"
-
+# Replace PORT variable in configurations using envsubst
 cp -r /etc/nginx/conf.d /etc/nginx/conf.d.templates
 
-for t in /etc/nginx/conf.d.templates/*
-do
-  envsubst '$PORT' < ${t} > "/etc/nginx/conf.d/"$(basename $t)
+for template in /etc/nginx/conf.d.templates/*; do
+  conf=$(basename "$template")
+  # shellcheck disable=SC2016
+  envsubst '$PORT' < "$template" > "/etc/nginx/conf.d/$conf"
 done
 
 rm -rf /etc/nginx/conf.d.templates
 
-
 # Start php-fpm and nginx
-php-fpm && nginx -g 'daemon off;'
+/usr/bin/supervisord

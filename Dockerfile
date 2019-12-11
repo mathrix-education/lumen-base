@@ -3,17 +3,45 @@ FROM php:7.4-fpm-alpine
 LABEL Maintainer="Mathieu Bour <mathieu@mathrix.fr>" \
       Description="Base for PHP projects with nginx and PHP 7.4"
 
-# Install the required php gmp extension for ellipitic curves
-RUN apk add --no-cache gmp gmp-dev gettext \
-  && docker-php-ext-install gmp
+ENV PORT=8080
 
-# Install nginx
-RUN apk add --no-cache nginx
+USER root
 
+# Install additional packages:
+# - nginx to serve the PHP application
+# - gmp for the php-gmp extension required to use ellipitic curves
+# - gettext to use the envsubst command
+RUN apk add --no-cache nginx gmp gmp-dev gettext supervisor \
+    && docker-php-ext-install -j$(nproc) gmp opcache \
+    # Cleanup: remove PHP source file
+    && rm -rf /usr/src /var/www /var/cache/apk/*
+
+# Copy configuration files
+COPY ./confs/nginx.conf /etc/nginx/nginx.conf
+COPY ./confs/gzip.conf /etc/nginx/conf.d/gzip.conf
+COPY ./confs/vhost.conf /etc/nginx/conf.d/default.conf
+COPY ./confs/php-fpm.conf "$PHP_INI_DIR/php-fpm.conf"
+COPY ./confs/php.ini "$PHP_INI_DIR/php.ini"
+COPY ./confs/supervisord.conf /etc/supervisord.conf
+
+# Copy entrypoint and ensure that it is runnable
 COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-# Cleanup
-RUN rm -rf /usr/src \
-  /etc/nginx/conf.d/default.conf
+# Setup a default phpinfo page as index
+RUN mkdir -p /var/www/public \
+    && echo "<?php phpinfo(); ?>" > /var/www/public/index.php
+
+# Make sure files/folders needed by the processes are accessible when they run under the nobody user
+RUN chown -R nobody.nobody /run && \
+    chown -R nobody.nobody /etc/nginx && \
+    chown -R nobody.nobody /var/lib/nginx && \
+    chown -R nobody.nobody /var/lib/nginx/logs && \
+    chown -R nobody.nobody /var/tmp/nginx && \
+    chown -R nobody.nobody /var/www
+
+USER nobody
+
+WORKDIR /var/www
 
 ENTRYPOINT ["/entrypoint.sh"]
