@@ -10,6 +10,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - run: docker login docker.pkg.github.com -u mathrix-education -p ${{ secrets.GITHUB_TOKEN }}
-      - run: docker build -t docker.pkg.github.com/mathrix-education/docker-php-fpm-nginx/php-fpm-nginx:latest
+      - run: docker build -t docker.pkg.github.com/mathrix-education/docker-php-fpm-nginx/php-fpm-nginx:latest .
       - run: docker push docker.pkg.github.com/mathrix-education/docker-php-fpm-nginx/php-fpm-nginx:latest
 
