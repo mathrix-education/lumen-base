@@ -16,8 +16,13 @@ RUN apk add --no-cache nginx gmp gmp-dev gettext supervisor fcgi \
 
     # Download PHP-FPM healthcheck
     && wget -O /usr/local/bin/php-fpm-healthcheck \
-    https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck \
+    "https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck" \
     && chmod +x /usr/local/bin/php-fpm-healthcheck \
+
+    # Install Google Cloud Logging Agent Formatter
+    #&& wget -O /tmp/install-logging-agent.sh "https://dl.google.com/cloudagents/install-logging-agent.sh"
+    #&& chmod +x /tmp/install-logging-agent.sh \
+    #&& /tmp/install-logging-agent.sh --structured \
 
     # Cleanup: remove PHP source file
     && rm -rf /usr/src /var/www /var/cache/apk/*
@@ -30,6 +35,7 @@ COPY ./confs/php.ini /usr/local/etc/php/php.ini
 COPY ./confs/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./confs/php-fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf
 COPY ./confs/supervisord.conf /etc/supervisord.conf
+
 
 # Copy entrypoint and ensure that it is runnable
 COPY ./entrypoint.sh /entrypoint.sh
