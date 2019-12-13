@@ -24,6 +24,6 @@ jobs:
       - name: Add tag if necessary
         if: contains(steps.git.outputs.tag, '.')
         run: |
-          docker tag mathrix/lumen-base:${{ steps.git.outputs.tag }} mathrix/lumen-base:latest
+          docker tag mathrix/lumen-base:latest mathrix/lumen-base:${{ steps.git.outputs.tag }}
           docker push mathrix/lumen-base:${{ steps.git.outputs.tag }}
 
