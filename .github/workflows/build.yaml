@@ -1,7 +1,8 @@
 name: Build Docker Image
 on:
   push:
-    branches: ['*'] # Do not run on tags
+    branches: ['**']
+    tags: ['*.*.*']
 jobs:
   build:
     name: Build Docker Image
@@ -9,10 +10,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+      - name: Extract git context
+        id: git
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          echo "##[set-output name=tag;]$(git tag -l --points-at HEAD)"
       - name: Login to GitHub Registry
-        run: docker login docker.pkg.github.com -u mathrix-education -p ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Build the image
-        run: docker build -t docker.pkg.github.com/mathrix-education/docker-php-fpm-nginx/php-fpm-nginx:latest .
+        run: docker build -t mathrix/lumen-base:latest .
       - name: Push the image
-        run: docker push docker.pkg.github.com/mathrix-education/docker-php-fpm-nginx/php-fpm-nginx:latest
+        run: docker push mathrix/lumen-base:latest
+      - name: Add tag if necessary
+        if: contains(steps.git.outputs.tag, '.')
+        run: |
+          docker tag mathrix/lumen-base:${{ steps.git.outputs.tag }} mathrix/lumen-base:latest
+          docker push mathrix/lumen-base:${{ steps.git.outputs.tag }}
 
