@@ -18,6 +18,10 @@ Proudly maintained by Mathieu Bour <mathieu@mathrix.fr>, Vice-CTO.
 - PHP-FPM: 7.4
 - nginx: 1.16
 
+## Cloud Run Integration
+Since this image was created to run Lumen APIs on Cloud Run, the nginx
+logs are already formatted to works with Stackdriver. 
+
 ## Environment variables
 
 | Name | Description              |
