@@ -1,4 +1,10 @@
-# PHP FPM, nginx dockerized
+# Lumen Base
+
+![][build-img]
+![][docker-pulls-img]
+
+[build-img]: https://img.shields.io/github/workflow/status/mathrix-education/lumen-base/Build%20Docker%20Image?style=flat-square
+[docker-pulls-img]: https://img.shields.io/docker/pulls/mathrix/lumen-base?style=flat-square
 
 This image aims to be the base of the Mathrix Education SA dockerized,
 PHP-based projects.
