@@ -11,17 +11,24 @@ USER root
 # - nginx to serve the PHP application
 # - gmp for the php-gmp extension required to use ellipitic curves
 # - gettext to use the envsubst command
-RUN apk add --no-cache nginx gmp gmp-dev gettext supervisor \
+RUN apk add --no-cache nginx gmp gmp-dev gettext supervisor fcgi \
     && docker-php-ext-install -j$(nproc) gmp opcache \
+
+    # Download PHP-FPM healthcheck
+    && wget -O /usr/local/bin/php-fpm-healthcheck \
+    https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck \
+    && chmod +x /usr/local/bin/php-fpm-healthcheck \
+
     # Cleanup: remove PHP source file
     && rm -rf /usr/src /var/www /var/cache/apk/*
 
 # Copy configuration files
 COPY ./confs/nginx.conf /etc/nginx/nginx.conf
-COPY ./confs/gzip.conf /etc/nginx/conf.d/gzip.conf
-COPY ./confs/vhost.conf /etc/nginx/conf.d/default.conf
-COPY ./confs/php-fpm.conf "$PHP_INI_DIR/php-fpm.conf"
-COPY ./confs/php.ini "$PHP_INI_DIR/php.ini"
+COPY ./confs/nginx-gzip.conf /etc/nginx/conf.d/gzip.conf
+COPY ./confs/nginx-vhost.conf /etc/nginx/conf.d/default.conf
+COPY ./confs/php.ini /usr/local/etc/php/php.ini
+COPY ./confs/php-fpm.conf /usr/local/etc/php-fpm.conf
+COPY ./confs/php-fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf
 COPY ./confs/supervisord.conf /etc/supervisord.conf
 
 # Copy entrypoint and ensure that it is runnable
@@ -36,9 +43,12 @@ RUN mkdir -p /var/www/public \
 RUN chown -R nobody.nobody /run && \
     chown -R nobody.nobody /etc/nginx && \
     chown -R nobody.nobody /var/lib/nginx && \
-    chown -R nobody.nobody /var/lib/nginx/logs && \
+    chown -R nobody.nobody /var/log/nginx && \
     chown -R nobody.nobody /var/tmp/nginx && \
     chown -R nobody.nobody /var/www
+
+# Declare healthcheck
+HEALTHCHECK CMD /usr/local/bin/php-fpm-healthcheck || exit 1
 
 USER nobody
 

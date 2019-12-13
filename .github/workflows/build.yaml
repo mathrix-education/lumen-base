@@ -9,7 +9,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - run: docker login docker.pkg.github.com -u mathrix-education -p ${{ secrets.GITHUB_TOKEN }}
-      - run: docker build -t docker.pkg.github.com/mathrix-education/docker-php-fpm-nginx/php-fpm-nginx:latest .
-      - run: docker push docker.pkg.github.com/mathrix-education/docker-php-fpm-nginx/php-fpm-nginx:latest
+      - name: Login to GitHub Registry
+        run: docker login docker.pkg.github.com -u mathrix-education -p ${{ secrets.GITHUB_TOKEN }}
+      - name: Build the image
+        run: docker build -t docker.pkg.github.com/mathrix-education/docker-php-fpm-nginx/php-fpm-nginx:latest .
+      - name: Push the image
+        run: docker push docker.pkg.github.com/mathrix-education/docker-php-fpm-nginx/php-fpm-nginx:latest
 
