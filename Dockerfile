@@ -12,7 +12,7 @@ USER root
 # - gmp for the php-gmp extension required to use ellipitic curves
 # - gettext to use the envsubst command
 RUN apk add --no-cache nginx gmp gmp-dev gettext fcgi \
-    && docker-php-ext-install -j$(nproc) gmp opcache \
+    && docker-php-ext-install -j$(nproc) gmp opcache pdo_mysql \
 
     # Download PHP-FPM healthcheck
     && wget -O /usr/local/bin/php-fpm-healthcheck \
