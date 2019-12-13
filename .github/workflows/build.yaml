@@ -18,7 +18,10 @@ jobs:
       - name: Login to GitHub Registry
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Build the image
-        run: docker build -t mathrix/lumen-base:latest .
+
+        run: |
+          docker pull mathrix/lumen-base:latest || true
+          docker build --cache-from mathrix/lumen-base:latest -t mathrix/lumen-base:latest .
       - name: Push the image
         run: docker push mathrix/lumen-base:latest
       - name: Add tag if necessary
