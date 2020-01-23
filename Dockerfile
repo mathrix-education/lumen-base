@@ -23,12 +23,13 @@ RUN apk add --no-cache nginx gmp gmp-dev gettext fcgi \
     && rm -rf /usr/src /var/www /var/cache/apk/*
 
 # Copy configuration files
-COPY ./confs/nginx.conf /etc/nginx/nginx.conf
-COPY ./confs/nginx-gzip.conf /etc/nginx/conf.d/gzip.conf
-COPY ./confs/nginx-vhost.conf /etc/nginx/conf.d/default.conf
-COPY ./confs/php.ini /usr/local/etc/php/php.ini
-COPY ./confs/php-fpm.conf /usr/local/etc/php-fpm.conf
-COPY ./confs/php-fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf
+COPY confs/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY confs/nginx/nginx-gzip.conf /etc/nginx/conf.d/gzip.conf
+COPY confs/nginx/nginx-vhost.conf /etc/nginx/conf.d/default.conf
+COPY confs/php/php.ini /usr/local/etc/php/php.ini
+COPY confs/php/php-fpm.conf /usr/local/etc/php-fpm.conf
+COPY confs/php/php-fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf
+COPY confs/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 
 # Copy entrypoint and ensure that it is runnable
@@ -44,7 +45,7 @@ RUN chown -R nobody.nobody /run && \
     chown -R nobody.nobody /etc/nginx && \
     chown -R nobody.nobody /var/lib/nginx && \
     chown -R nobody.nobody /var/log/nginx && \
-    chown -R nobody.nobody /var/tmp/nginx && \
+    #chown -R nobody.nobody /var/tmp/nginx && \
     chown -R nobody.nobody /var/www
 
 # Declare healthcheck
